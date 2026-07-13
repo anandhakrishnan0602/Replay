@@ -44,19 +44,13 @@ class Navigator<R: RouteProtocol> {
 }
 
 enum NavigationStacks {
-    case home
-    case favourites
-    case profile
+    case library
     
     @ViewBuilder
     func view() -> some View {
         switch self {
-        case .home:
-            NavigationContainer(startRoute: HomeRoutes.home)
-        case .favourites:
-            NavigationContainer(startRoute: FavouritesRoutes.favorite)
-        case .profile:
-            NavigationContainer(startRoute: ProfileRoutes.profile)
+        case .library:
+            NavigationContainer(startRoute: LibraryRoutes.library)
         }
     }
 }
