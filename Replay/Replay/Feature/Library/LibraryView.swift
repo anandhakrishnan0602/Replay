@@ -47,6 +47,16 @@ struct LibraryView: View {
             }
         }
         .task {
+            let authProvider = TwitchAuthProvider(
+                clientID: AppSecrets.igdbClientID,
+                clientSecret: AppSecrets.igdbClientSecret
+            )
+            do {
+                let token = try await authProvider.validToken()
+                print("Got token: \(token.prefix(10))...") // don't print the full token either
+            } catch {
+                print("Token fetch failed: \(error)")
+            }
             viewModel.loadGames()
         }
     }
