@@ -8,13 +8,11 @@
 import SwiftUI
 
 struct AddEditGameView: View {
-    @State private var viewModel: AddEditGameViewModel
+    @State private var viewModel: AddGameSearchViewModel
     @Environment(\.dismiss) private var dismiss
-    @State private var searchText = ""
-    
     
     init(game: Game? = nil) {
-        _viewModel = State(initialValue: AddEditGameViewModel(game: game))
+        _viewModel = State(initialValue: AddGameSearchViewModel())
     }
     
     var body: some View {
@@ -42,7 +40,24 @@ struct AddEditGameView: View {
             .padding(.bottom, 20)
             
             // Search bar
-            SearchBar(text: $searchText)
+            SearchBar(text: $viewModel.searchText)
+            
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(viewModel.searchResults) { result in
+                        GameSearchRow(result: result) {
+                            await viewModel.addGame(from: result)
+                        }
+
+                        if result.id != viewModel.searchResults.last?.id {
+                            Divider()
+                                .overlay(.white.opacity(0.06))
+                                .padding(.leading, 68) // aligns with text, not under the cover
+                        }
+                    }
+                }
+                .padding(.horizontal)
+            }
             
         }
         .sheetBackgroundGradient()

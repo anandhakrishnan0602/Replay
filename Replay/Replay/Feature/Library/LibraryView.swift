@@ -19,7 +19,9 @@ struct LibraryView: View {
         ScrollView {
             LazyVStack(spacing: 10) {
                 ForEach(viewModel.games) { game in
-                    GameTile(game: game)
+                    GameTile(game: game) { id in
+                        viewModel.deleteGame(id: id)
+                    }
                         .padding(.horizontal, 10)
                         .onTapGesture {
                             self.selectedGame = game
@@ -47,10 +49,6 @@ struct LibraryView: View {
             }
         }
         .task {
-            let authProvider = TwitchAuthProvider(
-                clientID: AppSecrets.igdbClientID,
-                clientSecret: AppSecrets.igdbClientSecret
-            )
             viewModel.loadGames()
         }
     }
@@ -58,22 +56,42 @@ struct LibraryView: View {
 
 struct GameTile: View {
     var game: Game
+    var remove: (UUID)->Void
     var body: some View {
         HStack() {
-            Image("game")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(width: 100, height: 100)
-                .background(Color.white)
+            
+            AsyncImage(url: game.coverURL) { phase in
+                switch phase {
+                case .empty:
+                    ProgressView()
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                case .failure:
+                    Image(systemName: "photo")
+                        .foregroundStyle(.gray)
+                @unknown default:
+                    EmptyView()
+                }
+            }
+            .frame(width: 100, height: 140) // match your cover art tile size
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            
             VStack(alignment: .leading) {
                 Text(game.title)
                     .font(AppFont.semibold.withSize(20))
-                Text(game.platform ?? "no platform")
+                Text(game.genre ?? "no genre")
                     .font(AppFont.semibold.withSize(14))
                 Text("last played 5h ago")
                     .font(AppFont.regular.withSize(14))
             }
             Spacer()
+            Button {
+                remove(game.id)
+            } label: {
+                Text("clear")
+            }
         }
         .foregroundStyle(Color.white)
     }

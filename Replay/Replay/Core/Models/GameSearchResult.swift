@@ -8,9 +8,16 @@
 import Foundation
 
 struct GameSearchResult: Identifiable {
-    let id = UUID()
+    let id: Int
     let title: String
     let coverURL: URL?
     let genre: String?
-    let year: Int?
+    let releaseDate: Date?
+}
+
+extension GameSearchResult {
+    var displayYear: Int? {
+        guard let releaseDate else { return nil }
+        return Calendar.current.component(.year, from: releaseDate)
+    }
 }

@@ -8,6 +8,7 @@
 import Foundation
 
 struct IGDBGameDTO: Decodable {
+    let id: Int
     let name: String
     let cover: Cover?
     let genres: [Genre]?
@@ -26,10 +27,11 @@ struct IGDBGameDTO: Decodable {
 extension IGDBGameDTO {
     func toSearchResult() -> GameSearchResult {
         GameSearchResult(
+            id: id,
             title: name,
             coverURL: Self.transformedCoverURL(from: cover?.url),
             genre: genres?.first?.name,
-            year: Self.year(from: first_release_date)
+            releaseDate: Self.releaseDate(from: first_release_date),
         )
     }
 
@@ -39,10 +41,9 @@ extension IGDBGameDTO {
         let resized = httpsURL.replacingOccurrences(of: "t_thumb", with: "t_cover_small")
         return URL(string: resized)
     }
-
-    private static func year(from timestamp: Int?) -> Int? {
+    
+    private static func releaseDate(from timestamp: Int?) -> Date? {
         guard let timestamp else { return nil }
-        let date = Date(timeIntervalSince1970: TimeInterval(timestamp))
-        return Calendar.current.component(.year, from: date)
+        return Date(timeIntervalSince1970: TimeInterval(timestamp))
     }
 }

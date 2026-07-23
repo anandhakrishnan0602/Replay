@@ -10,6 +10,7 @@ import SwiftUI
 enum LibraryRoutes: RouteProtocol {
     case library
     case addEditGame(game: Game?)
+    case details(game: Game)
 
     @ViewBuilder
     func view() -> some View {
@@ -18,6 +19,8 @@ enum LibraryRoutes: RouteProtocol {
             LibraryView()
         case .addEditGame(let game):
             AddEditGameView(game: game)
+        case .details(game: let game):
+            DetailsView()
         }
     }
 }

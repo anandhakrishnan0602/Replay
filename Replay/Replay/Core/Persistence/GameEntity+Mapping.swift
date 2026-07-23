@@ -17,6 +17,7 @@ extension GameEntity {
             releaseDate: releaseDate,
             igdbID: igdbId == 0 ? nil : igdbId,
             dateAdded: dateAdded ?? .now,
+            genre: genre,
             sessions: (sessions as? Set<SessionEntity>)?
                 .map { $0.toDomain() }
                 .sorted { $0.date > $1.date } ?? []

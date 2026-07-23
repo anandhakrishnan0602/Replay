@@ -12,7 +12,7 @@ protocol GameSearching {
     func search(query: String) async throws -> [GameSearchResult]
 }
 
-final class IDGBSearchClient: GameSearching {
+final class IGDBSearchClient: GameSearching {
     
     private let authProvider: AuthTokenProviding
     private let clientID: String
@@ -38,7 +38,7 @@ final class IDGBSearchClient: GameSearching {
         request.setValue(clientID, forHTTPHeaderField: "Client-ID")
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
-        let body = #"search "\#(query)"; fields name, cover.url, genres.name, first_release_date; limit 10;"#
+        let body = #"search "\#(query)"; fields id, name, cover.url, genres.name, first_release_date; limit 10;"#
         request.httpBody = body.data(using: .utf8)
         let (data, response) = try await urlSession.data(for: request)
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
