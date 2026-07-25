@@ -48,9 +48,6 @@ struct LibraryView: View {
                 }
             }
         }
-        .task {
-            viewModel.loadGames()
-        }
     }
 }
 
