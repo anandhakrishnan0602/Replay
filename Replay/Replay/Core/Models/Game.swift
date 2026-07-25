@@ -14,5 +14,8 @@ struct Game: Identifiable, Hashable {
     var releaseDate: Date?
     var igdbID: Int64?
     var dateAdded: Date
+    var genre: String?
+    var lastPlayed: Date?
     var sessions: [Session]
 }
+

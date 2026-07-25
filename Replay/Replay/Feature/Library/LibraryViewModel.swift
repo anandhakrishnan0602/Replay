@@ -6,10 +6,11 @@
 //
 
 import Foundation
+import CoreData
 
 @MainActor
 @Observable
-final class LibraryViewModel {
+final class LibraryViewModel: NSObject {
     
     // MARK: - State
     
@@ -17,6 +18,7 @@ final class LibraryViewModel {
     private(set) var isLoading = false
     var errorMessage: String?
     var searchText = ""
+    private var fetchedResultsController: NSFetchedResultsController<GameEntity>?
     
     // MARK: - Dependencies
     
@@ -26,8 +28,39 @@ final class LibraryViewModel {
     
     init(repository: GameRepository? = nil) {
         self.repository = repository ?? GameRepository(context: PersistenceController.shared.context)
+        super.init()
+        setupFetchedResultsController()
     }
     
+    private func setupFetchedResultsController() {
+        let request = GameEntity.fetchRequest()
+        request.sortDescriptors = [
+            NSSortDescriptor(key: "lastPlayed", ascending: false)
+        ]
+
+        fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: request,
+            managedObjectContext: PersistenceController.shared.context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        fetchedResultsController?.delegate = self
+
+        do {
+            try fetchedResultsController?.performFetch()
+            errorMessage = nil
+            updateGames()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+    
+    private func updateGames() {
+        let fetched = (fetchedResultsController?.fetchedObjects ?? []).map { $0.toDomain() }
+        let played = fetched.filter { $0.lastPlayed != nil }
+        let unplayed = fetched.filter { $0.lastPlayed == nil }
+        games = played + unplayed
+    }
     // MARK: - Computed
     
     var filteredGames: [Game] {
@@ -63,5 +96,11 @@ final class LibraryViewModel {
         } catch {
             errorMessage = error.localizedDescription
         }
+    }
+}
+
+extension LibraryViewModel: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        updateGames()
     }
 }

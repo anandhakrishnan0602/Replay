@@ -35,13 +35,14 @@ final class GameRepository {
     // MARK: - Create
     
     @discardableResult
-    func create(title: String, coverURL: URL? = nil, platform: String? = nil, releaseDate: Date? = nil, igdbID: Int64? = nil) throws -> Game {
+    func create(title: String, coverURL: URL? = nil, platform: String? = nil, releaseDate: Date? = nil, igdbID: Int? = nil, genre: String? = nil) throws -> Game {
         let entity = GameEntity(context: context)
         entity.title = title
         entity.coverUrl = coverURL
         entity.platform = platform
         entity.releaseDate = releaseDate
-        entity.igdbId = igdbID ?? 0
+        entity.igdbId = Int64(igdbID ?? 0)
+        entity.genre = genre
         
         try context.save()
         return entity.toDomain()
