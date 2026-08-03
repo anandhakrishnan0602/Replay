@@ -11,6 +11,7 @@ enum LibraryRoutes: RouteProtocol {
     case library
     case addEditGame(game: Game?)
     case details(game: Game)
+    case SessionLog(game: Game, session: Session?)
 
     @ViewBuilder
     func view() -> some View {
@@ -20,7 +21,9 @@ enum LibraryRoutes: RouteProtocol {
         case .addEditGame(let game):
             AddEditGameView(game: game)
         case .details(game: let game):
-            DetailsView()
+            DetailsView(game: game)
+        case .SessionLog(game: let game, session: let session):
+            SessionLogSheet(game: game, session: session)
         }
     }
 }
