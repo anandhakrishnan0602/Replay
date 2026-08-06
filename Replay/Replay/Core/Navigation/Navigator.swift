@@ -15,6 +15,8 @@ class Navigator<R: RouteProtocol> {
     var startingPath: R
     
     var sheetItem: SheetItem<R>?
+    
+    var onSheetDismiss: (() -> Void)?
 
     init(startingPath: R) {
         self.startingPath = startingPath
@@ -24,7 +26,8 @@ class Navigator<R: RouteProtocol> {
         navigationPath.append(route)
     }
     
-    func presentSheet(_ route: R) {
+    func presentSheet(_ route: R, onDismiss: (() -> Void)? = nil) {
+        onSheetDismiss = onDismiss
         sheetItem = SheetItem(route: route)
     }
 
@@ -72,7 +75,10 @@ struct NavigationContainer<R: RouteProtocol>: View {
                 route.view().environment(navigator)
             }
         }
-        .sheet(item: $navigator.sheetItem) { item in
+        .sheet(item: $navigator.sheetItem, onDismiss: {
+            navigator.onSheetDismiss?()
+            navigator.onSheetDismiss = nil
+        }) { item in
             item.route.view().environment(navigator)
         }
     }

@@ -12,9 +12,7 @@ struct LibraryView: View {
     @Environment(Navigator<LibraryRoutes>.self) var navigator
     
     @State private var viewModel: LibraryViewModel = LibraryViewModel()
-    @State private var showQuickLog = false
-    @State private var selectedGame: Game?
-    
+
     var body: some View {
         ScrollView {
             LazyVStack(spacing: 10) {
@@ -24,13 +22,9 @@ struct LibraryView: View {
                     }
                         .padding(.horizontal, 10)
                         .onTapGesture {
-                            self.selectedGame = game
-                            self.showQuickLog.toggle()
+                            navigator.navigateTo(.details(game: game))
                         }
                 }
-            }
-            .sheet(isPresented: $showQuickLog) {
-                
             }
         }
         .backgroundGradient()
