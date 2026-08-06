@@ -68,7 +68,7 @@ struct SessionRowView: View {
                     .foregroundStyle(.white)
             }
             .frame(width: 44)
-
+            
             ZStack {
                 Circle()
                     .fill(.white.opacity(0.08))
@@ -76,24 +76,20 @@ struct SessionRowView: View {
                 Text(moodEmoji)
                     .font(.title3)
             }
-
+            
             Text(note)
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.9))
                 .lineLimit(1)
                 .truncationMode(.tail)
-
+            
             Spacer(minLength: 8)
-
+            
             Text(duration)
                 .font(.subheadline.weight(.semibold))
                 .foregroundStyle(Color.accentColor)
         }
         .padding(16)
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .overlay(
-            RoundedRectangle(cornerRadius: 16)
-                .stroke(.white.opacity(0.08), lineWidth: 1)
-        )
+        .replayGlassCard()
     }
 }

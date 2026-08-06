@@ -8,7 +8,7 @@
 import SwiftUI
 struct GameStats: View {
     let sessionCount: Int
-        let averageMoodEmoji: String = "😊"
+        let averageMoodEmoji: String
         let hoursPlayed: Int
 
         var body: some View {
@@ -25,11 +25,7 @@ struct GameStats: View {
             }
             .padding(.vertical, 20)
             .frame(maxWidth: .infinity)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 20))
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(.white.opacity(0.08), lineWidth: 1)
-            )
+            .replayGlassCard()
             .padding(.horizontal, 20)
         }
 
