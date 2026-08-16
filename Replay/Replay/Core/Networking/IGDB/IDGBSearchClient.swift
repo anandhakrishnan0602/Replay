@@ -44,8 +44,8 @@ final class IGDBSearchClient: GameSearching {
         guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
             throw URLError(.badServerResponse)
         }
-        
         let dtos = try JSONDecoder().decode([IGDBGameDTO].self, from: data)
+//        print(dtos.first)
         return dtos.map { $0.toSearchResult() }
     }
 }

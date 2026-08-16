@@ -12,28 +12,41 @@ import Foundation
 final class GameDetailViewModel {
     let game: Game
     private(set) var sessions: [Session] = []
+    var errorMessage: String?
     
     private let sessionRepository: SessionRepository
+    private let gameRepository: GameRepository
     
-    init(game: Game, sessionRepository: SessionRepository? = nil ) {
+    init(game: Game, sessionRepository: SessionRepository? = nil, gameRepository: GameRepository? = nil ) {
         self.game = game
         self.sessionRepository = sessionRepository ?? SessionRepository(context: PersistenceController.shared.context)
+        self.gameRepository = gameRepository ?? GameRepository(context: PersistenceController.shared.context)
     }
     
     func loadSessions() {
         do {
             sessions = try sessionRepository.fetchAll(for: game.id)
         } catch {
-            print("error while fetching sessions: \(error)")
+            errorMessage = "Failed to load sessions"
         }
     }
     
     func deleteSession(_ session: Session) {
         do{
-            try sessionRepository.delete(id: session.id)
+            try sessionRepository.delete(id: session.id, gameID: game.id)
             sessions.removeAll { $0.id == session.id }
         } catch {
-            print("error while deleting session: \(error)")
+            errorMessage = "Failed to delete session"
+        }
+    }
+    
+    func deleteGame() -> Bool{
+        do {
+            try gameRepository.delete(id: game.id)
+            return true
+        } catch {
+            errorMessage = "Failed to delete game"
+            return false
         }
     }
     
@@ -50,8 +63,8 @@ final class GameDetailViewModel {
         return mostCommon?.emoji ?? "—"
     }
     
-    var totalHoursPlayed: Int {
+    var totalMinutesPlayed: Int {
         let totalMinutes = sessions.reduce(0) { $0 + ($1.durationMinutes ?? 0) }
-        return totalMinutes / 60
+        return totalMinutes
     }
 }

@@ -12,21 +12,33 @@ struct LibraryView: View {
     @Environment(Navigator<LibraryRoutes>.self) var navigator
     
     @State private var viewModel: LibraryViewModel = LibraryViewModel()
-
+    
     var body: some View {
+        Group {
+            if viewModel.games.isEmpty {
+                ContentUnavailableView(
+                    "No Games Yet",
+                    systemImage: "gamecontroller",
+                    description: Text("Tap + to add your first game")
+                )
+                .foregroundStyle(Color.white)
+            } else if viewModel.filteredGames.isEmpty {
+                ContentUnavailableView.search(text: viewModel.searchText)
+                    .foregroundStyle(Color.white)
+            } else {
         ScrollView {
             LazyVStack(spacing: 10) {
-                ForEach(viewModel.games) { game in
-                    GameTile(game: game) { id in
-                        viewModel.deleteGame(id: id)
+                ForEach(viewModel.filteredGames) { game in
+                    GameTile(game: game)
+                    .padding(.horizontal, 10)
+                    .onTapGesture {
+                        navigator.navigateTo(.details(game: game))
                     }
-                        .padding(.horizontal, 10)
-                        .onTapGesture {
-                            navigator.navigateTo(.details(game: game))
-                        }
                 }
             }
         }
+    }
+}
         .backgroundGradient()
         .navigationTitle(Text("Library"))
         .searchable(text: $viewModel.searchText, prompt: "Search for game") {
@@ -42,12 +54,12 @@ struct LibraryView: View {
                 }
             }
         }
+        .toast(message: $viewModel.errorMessage)
     }
 }
 
 struct GameTile: View {
     var game: Game
-    var remove: (UUID)->Void
     var body: some View {
         HStack() {
             
@@ -74,15 +86,10 @@ struct GameTile: View {
                     .font(AppFont.semibold.withSize(20))
                 Text(game.genre ?? "no genre")
                     .font(AppFont.semibold.withSize(14))
-                Text("last played 5h ago")
+                Text(game.totalPlayTimeDisplay)
                     .font(AppFont.regular.withSize(14))
             }
             Spacer()
-            Button {
-                remove(game.id)
-            } label: {
-                Text("clear")
-            }
         }
         .foregroundStyle(Color.white)
     }

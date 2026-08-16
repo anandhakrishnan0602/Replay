@@ -54,6 +54,8 @@ final class SessionRepository {
         entity.date = date
         entity.game = gameEntity
         
+        gameEntity.lastModified = Date()
+        
         try context.save()
         return entity.toDomain()
     }
@@ -61,7 +63,12 @@ final class SessionRepository {
     // MARK: - Update
     
     @discardableResult
-    func update(_ session: Session) throws -> Session {
+    func update(_ session: Session, gameID: UUID) throws -> Session {
+        
+        guard let gameEntity = try fetchGameEntity(id: gameID) else {
+            throw RepositoryError.notFound
+        }
+        
         guard let entity = try fetchEntity(id: session.id) else {
             throw RepositoryError.notFound
         }
@@ -71,15 +78,24 @@ final class SessionRepository {
         entity.durationMinutes = Int32(session.durationMinutes ?? 0)
         entity.date = session.date
         
+        gameEntity.lastModified = Date()
+        
         try context.save()
         return entity.toDomain()
     }
     
     // MARK: - Delete
     
-    func delete(id: UUID) throws {
+    func delete(id: UUID, gameID: UUID) throws {
+        guard let gameEntity = try fetchGameEntity(id: gameID) else {
+            throw RepositoryError.notFound
+        }
+        
         guard let entity = try fetchEntity(id: id) else { return }
         context.delete(entity)
+        
+        gameEntity.lastModified = Date()
+
         try context.save()
     }
     
