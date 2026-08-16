@@ -82,4 +82,11 @@ final class GameRepository {
         request.fetchLimit = 1
         return try context.fetch(request).first
     }
+    
+    func exists(igdbID: Int) throws -> Bool {
+        let request = GameEntity.fetchRequest()
+        request.predicate = NSPredicate(format: "igdbId == %d", Int64(igdbID))
+        request.fetchLimit = 1
+        return try context.count(for: request) > 0
+    }
 }

@@ -22,9 +22,8 @@ final class AddGameSearchViewModel {
         }
     }
     
-    private(set) var searchResults: [GameSearchResult] = []
-    private(set) var isSearching: Bool = false
-    private(set) var errorMessage: String?
+    private(set) var searchState: SearchState = .idle
+    var toastMessage: String?
     
     // MARK: - Dependencies
     
@@ -62,9 +61,7 @@ final class AddGameSearchViewModel {
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         
         guard !query.isEmpty else {
-            searchResults = []
-            errorMessage = nil
-            isSearching = false
+            searchState = .idle
             return
         }
         
@@ -74,23 +71,17 @@ final class AddGameSearchViewModel {
             try? await Task.sleep(for: self.debounceDelay)
             guard !Task.isCancelled else { return }
             
-            print("Searching")
-            self.isSearching = true
-            self.errorMessage = nil
-            
+            self.searchState = .searching
             do {
                 let results = try await self.searchClient.search(query: query)
                 guard !Task.isCancelled else { return }
-                self.searchResults = results
+                self.searchState = results.isEmpty ? .empty : .results(results)
             } catch is CancellationError {
                 // Superseded by a newer keystroke's search — ignore silently
             } catch {
                 guard !Task.isCancelled else { return }
-                self.searchResults = []
-                self.errorMessage = "Couldn't load results. Check your connection and try again."
+                self.searchState = .failed("An eror occurred. Try again.")
             }
-            
-            self.isSearching = false
         }
     }
     
@@ -99,21 +90,27 @@ final class AddGameSearchViewModel {
     /// Maps a search result into the persisted domain model and saves it.
     /// Returns after the repository write completes so the row can show
     /// its confirmation state.
-        func addGame(from result: GameSearchResult) async {
-//            let game = Game(
-//                id: UUID(),
-//                title: result.title,
-//                coverURL: result.coverURL,
-//                releaseDate: result.releaseDate,
-//                dateAdded: Date(),
-//                sessions: []
-////                genre: result.genre,
-//            )
-    
-            do {
-                try gameRepository.create(title: result.title, coverURL: result.coverURL, releaseDate: result.releaseDate, igdbID: result.id, genre: result.genre)
-            } catch {
-                errorMessage = "Couldn't add \(result.title). Try again."
+    func addGame(from result: GameSearchResult) async {
+        do {
+            // check if game already exists
+            if try gameRepository.exists(igdbID: result.id) {
+                toastMessage = "\(result.title) is already in your library."
+                return
             }
+            
+            try gameRepository.create(title: result.title, coverURL: result.coverURL, releaseDate: result.releaseDate, igdbID: result.id, genre: result.genre)
+            toastMessage = "Added \(result.title)."
+        } catch {
+            toastMessage = "Couldn't add \(result.title). Try again."
         }
+    }
+}
+
+
+enum SearchState {
+    case idle
+    case searching
+    case results([GameSearchResult])
+    case empty
+    case failed(String)
 }

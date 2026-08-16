@@ -42,25 +42,43 @@ struct AddEditGameView: View {
             // Search bar
             SearchBar(text: $viewModel.searchText)
             
-            ScrollView {
-                LazyVStack(spacing: 0) {
-                    ForEach(viewModel.searchResults) { result in
-                        GameSearchRow(result: result) {
-                            await viewModel.addGame(from: result)
-                        }
+            switch viewModel.searchState {
+            case .idle:
+                ContentUnavailableView("Search for a game", systemImage: "magnifyingglass")
+                    .foregroundStyle(Color.white)
+            case .searching:
+                ProgressView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .tint(Color.white)
+                    .controlSize(.extraLarge)
+            case .results(let results):
+                ScrollView {
+                    LazyVStack(spacing: 0) {
+                        ForEach(results) { result in
+                            GameSearchRow(result: result) {
+                                await viewModel.addGame(from: result)
+                            }
 
-                        if result.id != viewModel.searchResults.last?.id {
-                            Divider()
-                                .overlay(.white.opacity(0.06))
-                                .padding(.leading, 68) // aligns with text, not under the cover
+                            if result.id != results.last?.id {
+                                Divider()
+                                    .overlay(.white.opacity(0.06))
+                                    .padding(.leading, 68) // aligns with text, not under the cover
+                            }
                         }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
+            case .empty:
+                ContentUnavailableView.search
+                    .foregroundStyle(Color.white)
+            case .failed(let message):
+                ContentUnavailableView(message, systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(Color.white)
             }
             
         }
         .sheetBackgroundGradient()
+        .toast(message: $viewModel.toastMessage)
     }
 }
 

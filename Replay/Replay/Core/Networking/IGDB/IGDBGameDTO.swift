@@ -21,6 +21,10 @@ struct IGDBGameDTO: Decodable {
     struct Genre: Decodable {
         let name: String
     }
+    
+    struct Artwork: Decodable {
+        let url: String
+    }
 }
 
 

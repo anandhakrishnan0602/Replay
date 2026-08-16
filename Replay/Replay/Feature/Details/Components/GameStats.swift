@@ -9,7 +9,7 @@ import SwiftUI
 struct GameStats: View {
     let sessionCount: Int
         let averageMoodEmoji: String
-        let hoursPlayed: Int
+        let minutesPlayed: Int
 
         var body: some View {
             HStack(spacing: 0) {
@@ -21,7 +21,7 @@ struct GameStats: View {
 
                 divider
 
-                statColumn(label: "PLAYED", value: "\(hoursPlayed)h")
+                statColumn(label: "PLAYED", value: minutesPlayed < 60 ? "\(minutesPlayed)m" : "\(minutesPlayed / 60)h")
             }
             .padding(.vertical, 20)
             .frame(maxWidth: .infinity)

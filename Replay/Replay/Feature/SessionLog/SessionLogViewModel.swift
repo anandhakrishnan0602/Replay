@@ -63,7 +63,7 @@ final class SessionLogViewModel {
                               note: noteToSave,
                               durationMinutes: durationMinutes
                           )
-                          try repository.update(updated)
+                          try repository.update(updated, gameID: gameID)
             } else {
                 try repository.create(
                     gameID: gameID,
@@ -84,7 +84,7 @@ final class SessionLogViewModel {
     func delete() -> Bool {
         guard let existingSession else { return false }
         do {
-            try repository.delete(id: existingSession.id)
+            try repository.delete(id: existingSession.id, gameID: gameID)
             return true
         } catch {
             saveState = .error(error.localizedDescription)

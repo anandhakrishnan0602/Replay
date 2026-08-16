@@ -22,12 +22,12 @@ struct SessionsListView: View {
 
                 Spacer()
 
-                Button {
-                    // filter action — hook up later
-                } label: {
-                    Image(systemName: "line.3.horizontal.decrease")
-                        .foregroundStyle(.white.opacity(0.7))
-                }
+//                Button {
+//                    // filter action — hook up later
+//                } label: {
+//                    Image(systemName: "line.3.horizontal.decrease")
+//                        .foregroundStyle(.white.opacity(0.7))
+//                }
             }
 
             VStack(spacing: 12) {

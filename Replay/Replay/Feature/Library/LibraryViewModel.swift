@@ -35,7 +35,7 @@ final class LibraryViewModel: NSObject {
     private func setupFetchedResultsController() {
         let request = GameEntity.fetchRequest()
         request.sortDescriptors = [
-            NSSortDescriptor(key: "lastPlayed", ascending: false)
+            NSSortDescriptor(key: "lastModified", ascending: false)
         ]
 
         fetchedResultsController = NSFetchedResultsController(
@@ -51,14 +51,14 @@ final class LibraryViewModel: NSObject {
             errorMessage = nil
             updateGames()
         } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Failed to load games"
         }
     }
     
     private func updateGames() {
         let fetched = (fetchedResultsController?.fetchedObjects ?? []).map { $0.toDomain() }
-        let played = fetched.filter { $0.lastPlayed != nil }
-        let unplayed = fetched.filter { $0.lastPlayed == nil }
+        let played = fetched.filter { $0.lastModified != nil }
+        let unplayed = fetched.filter { $0.lastModified == nil }
         games = played + unplayed
     }
     // MARK: - Computed
@@ -85,16 +85,7 @@ final class LibraryViewModel: NSObject {
             games = try repository.fetchAll()
             errorMessage = nil
         } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-    
-    func deleteGame(id: UUID) {
-        do {
-            try repository.delete(id: id)
-            games.removeAll { $0.id == id }
-        } catch {
-            errorMessage = error.localizedDescription
+            errorMessage = "Failed to load games"
         }
     }
 }
