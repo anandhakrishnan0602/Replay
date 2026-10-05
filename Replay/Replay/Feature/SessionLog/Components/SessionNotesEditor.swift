@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SessionNotesEditor: View {
     @Binding var text: String
+    @FocusState private var isNoteFocused: Bool
+
 
     var body: some View {
         ZStack(alignment: .topLeading) {
@@ -20,6 +22,7 @@ struct SessionNotesEditor: View {
             }
 
             TextEditor(text: $text)
+                .focused($isNoteFocused)
                 .scrollContentBackground(.hidden)
                 .foregroundStyle(.white)
                 .padding(.horizontal, 8)
@@ -34,5 +37,22 @@ struct SessionNotesEditor: View {
                         .stroke(Color.white.opacity(0.1), lineWidth: 1)
                 )
         )
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                Spacer()
+                Button{
+                    isNoteFocused = false
+                } label: {
+                    Text("Done")
+                        .fontWeight(.semibold)
+                                .foregroundStyle(.black)
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 6)
+                                .background(.white.opacity(0.8), in: RoundedRectangle(cornerRadius: 10))
+                }
+            }
+            .sharedBackgroundVisibility(.hidden)
+        }
+        
     }
 }
