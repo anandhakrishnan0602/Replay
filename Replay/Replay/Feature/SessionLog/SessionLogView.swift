@@ -24,25 +24,28 @@ struct SessionLogSheet: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            header
-            
-            MoodSelectorRow(selectedMood: $viewModel.mood)
-            SessionNotesEditor(text: $viewModel.note)
-            DateDurationRow(sessionDate: $viewModel.date, durationMinutes: $viewModel.durationMinutes)
-            VStack(alignment: .leading, spacing: 8) {
-                SaveSessionButton(state: viewModel.saveState, isEditing: viewModel.isEditing) {
-                    viewModel.save()
-                }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 24) {
+                header
+                
+                MoodSelectorRow(selectedMood: $viewModel.mood)
+                SessionNotesEditor(text: $viewModel.note)
+                DateDurationRow(sessionDate: $viewModel.date, durationMinutes: $viewModel.durationMinutes)
+                VStack(alignment: .leading, spacing: 8) {
+                    SaveSessionButton(state: viewModel.saveState, isEditing: viewModel.isEditing) {
+                        viewModel.save()
+                    }
 
-                if case .error(let message) = viewModel.saveState {
-                    Text(message)
-                        .font(.footnote)
-                        .foregroundStyle(.red)
+                    if case .error(let message) = viewModel.saveState {
+                        Text(message)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                    }
                 }
+                Spacer()
             }
-            Spacer()
         }
+        .scrollDismissesKeyboard(.immediately)
         .padding(.horizontal, 20)
         .padding(.top, 40)
         .backgroundGradient()
